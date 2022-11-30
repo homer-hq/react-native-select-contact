@@ -5,6 +5,7 @@
 
 @import Foundation;
 #import "RCTSelectContact.h"
+#import <React/RCTUtils.h>
 @interface RCTSelectContact()
 
 @property(nonatomic, retain) RCTPromiseResolveBlock _resolve;
@@ -21,15 +22,18 @@ RCT_EXPORT_METHOD(openContactSelection:(RCTPromiseResolveBlock)resolve rejecter:
   self._resolve = resolve;
   self._reject = reject;
   
-  UIViewController *picker = [[CNContactPickerViewController alloc] init];
-  ((CNContactPickerViewController *)picker).delegate = self;
-  
-  // Launch Contact Picker
-  UIViewController *root = [[[UIApplication sharedApplication] delegate] window].rootViewController;
-  while(root.presentedViewController) {
-    root = root.presentedViewController;
-  }
-  [root presentViewController:picker animated:YES completion:nil];
+  dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *picker = [[CNContactPickerViewController alloc] init];
+        ((CNContactPickerViewController *)picker).delegate = self;
+        
+        // Launch Contact Picker when rootViewController is set in AppDelegate
+//        UIViewController *root = [[[UIApplication sharedApplication] delegate] window].rootViewController;
+//        while(root.presentedViewController) {
+//          root = root.presentedViewController;
+//        }
+//        [root presentViewController:picker animated:YES completion:nil];
+        [RCTPresentedViewController() presentViewController:picker animated:YES completion:nil];
+    });
 }
 
 - (NSMutableDictionary *) emptyContactDict {
